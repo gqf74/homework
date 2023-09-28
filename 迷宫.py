@@ -1,3 +1,6 @@
+import sys
+sys.setrecursionlimit(1000000)    #设置递归深度
+
 import random
 def maze_build():
     maze=[[0 for j in range(10)]for i in range(10)] #创立10*10的二维数组表示迷宫
@@ -21,78 +24,56 @@ def maze_build():
     return maze,entrance,exit
 
 def valid(maze,x,y):   #设置判断坐标有效性的函数
-    if(x>=0 and x<len(maze) and y>=0 and y<len(maze[0]) and maze[x][x]==1):
+    if(x>=0 and x<len(maze) and y>=0 and y<len(maze[0]) and (maze[x][y]=="1" or "2")):
         return True
     else:
-         return False
+        return False
       
-def walk(maze,x ,y):     #移动并判断移动结果
-    if valid(maze,x,y):
-        while (maze[x][y]!="8"):
-            maze[x][y]="3"   #做标记防止折回
-            m=input("请输入移动方位：")
-            if (m=="W"):
-                x=x-1
-            if (m=="A"):
-                y=y-1
-            if (m=="S"):
-                x=x+1
-            if (m=="D"):
-                y=y+1
-            if (maze[x][y]=="8"):
-                break
-            elif (valid(maze,x,y)):
-                maze[x][y]="5"   #移动至新的位置
-            else:
-               print("遇到障碍物")   #很抱歉只会傻傻撤回...
-               if (m=="W"):
-                   x=x-1
-               if (m=="A"):
-                   y=y+1
-               if (m=="S"):
-                   x=x+1
-               if (m=="D"):
-                   y=y-1
-            for i in range(10):
-                print(maze[i])
-                i+=1
-    return maze
-
 def try_walk(maze,x,y):     #验证迷宫可行性
     if valid(maze,x,y):
         if (maze[x][y]=="8"):
             print("迷宫可行")
     return True
 
-def try_maze(maze,x,y):          #尝试用递归验证迷宫是否可行...但是不知道怎么能保持同时试探四个方向
-    if maze[x][y]=="8":
-        print("迷宫可行")
-        return maze,x,y 
-    else: 
-        #maze[x][y]=3
-        for i in range(100):
-            if valid(maze,x-1,y):
-                try_maze(maze,x-1,y)
-            if valid(maze,x,y-1):
-                try_maze(maze,x,y-1)
-            if valid(maze,x+1,y):
-                try_maze(maze,x+1,y)
-            if valid(maze,x,y+1):
-                try_maze(maze,x,y+1)
-        print("迷宫不可行")
-        return maze,x,y
-        #try_maze(maze,x,y)
-
+def try_maze(maze,x,y,f):
+        i=0
+    #f=valid(maze,x,y)
+    #if f :
+        while i <100:         #尝试用递归验证迷宫是否可行...但是不知道怎么能保持同时试探四个方向
+            if maze[x][y]=="8":   
+                print("迷宫可行")
+                return maze,x,y,f
+            else:         #而且这个部分老是递归死循环，不知道为什么，试着用i限制递归次数好像也不行
+                if valid(maze,x-1,y):
+                    try_maze(maze,x-1,y,f)
+                    i+=1
+                if valid(maze,x,y-1):
+                    try_maze(maze,x,y-1,f)
+                    i+=1
+                if valid(maze,x+1,y):
+                    try_maze(maze,x+1,y,f)
+                    i+=1
+                if valid(maze,x,y+1):
+                    try_maze(maze,x,y+1,f)
+                    i+=1
+                else:
+                    print("迷宫不可行")
+                    return maze,x,y,f
+        #print("迷宫不可行")
+        #return maze,x,y,f
+            
+            
 build=maze_build()
 maze,entrance,exit=build
 x=entrance[0]
 y=entrance[1]
-tryresult=try_maze(maze,x,y)
-maze,x,y=tryresult
-for i in range(10):   #测试一下输出迷宫阵列
-    print(maze[i])
-    i+=1
-while (maze[x][y]!="8"):
+#f=valid(maze,x,y)    #因为尝试调用检测函数会死循环所以暂时注释掉了
+#tryresult=try_maze(maze,x,y,f)
+maze,x,y,f=tryresult
+if f:
+    for i in range(10):  
+        print(maze[i])
+    while (maze[x][y]!="8"):
         maze[x][y]="3"   #做标记防止折回
         m=input("请输入移动方位：")
         if (m=="W"):
@@ -104,9 +85,10 @@ while (maze[x][y]!="8"):
         if (m=="D"):
             y=y+1
         if (maze[x][y]=="8"):
+            print("恭喜走出迷宫！")
             break
-        f=valid(maze,x,y)
-        if f:
+        t=valid(maze,x,y)   #不知道为什么明明加了检测但是每次还是能破墙而出...
+        if t:
             maze[x][y]="5"   #移动至新的位置
         else:
             print("遇到障碍物")   #很抱歉只会傻傻撤回...
@@ -120,5 +102,11 @@ while (maze[x][y]!="8"):
                 y=y-1
         for i in range(10):
             print(maze[i])
-            i+=1
-#walk(maze,x,y)
+
+#else:        #不知道怎么写能让它自动刷新迷宫并再次进入检测环节
+    #build=maze_build()
+    #maze,entrance,exit=build
+    #x=entrance[0]
+    #y=entrance[1]
+    #tryresult=try_maze(maze,x,y,f)
+    #maze,x,y,f=tryresult
