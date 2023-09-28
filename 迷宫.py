@@ -14,7 +14,7 @@ def maze_build():
     for i in range(1,9):
           for j in range(1,9):
                 maze[i][j]=str(random.randint(0,1))   #随机生成迷宫内容
-    for i in range(0,10):    #想用■表示墙，看起来更清楚一些，但是不知道如何把生成maze时的原始0变成‘0’
+    for i in range(0,10):    #想用■表示墙，看起来更清楚一些
           for j in range(0,10):            
                 if maze[i][j]=="0" or maze[i][j]==0:
                     maze[i][j]="■"
@@ -28,8 +28,8 @@ def valid(maze,x,y):   #设置判断坐标有效性的函数
       
 def walk(maze,x ,y):     #移动并判断移动结果
     if valid(maze,x,y):
-        while (maze[x][y]!=8):
-            maze[x][y]=3   #做标记防止折回
+        while (maze[x][y]!="8"):
+            maze[x][y]="3"   #做标记防止折回
             m=input("请输入移动方位：")
             if (m=="W"):
                 x=x-1
@@ -39,10 +39,10 @@ def walk(maze,x ,y):     #移动并判断移动结果
                 x=x+1
             if (m=="D"):
                 y=y+1
-            if (maze[x][y]==8):
+            if (maze[x][y]=="8"):
                 break
             elif (valid(maze,x,y)):
-                maze[x][y]=5   #移动至新的位置
+                maze[x][y]="5"   #移动至新的位置
             else:
                print("遇到障碍物")   #很抱歉只会傻傻撤回...
                if (m=="W"):
@@ -60,24 +60,65 @@ def walk(maze,x ,y):     #移动并判断移动结果
 
 def try_walk(maze,x,y):     #验证迷宫可行性
     if valid(maze,x,y):
-        if (maze[x][y]==8):
+        if (maze[x][y]=="8"):
             print("迷宫可行")
     return True
 
+def try_maze(maze,x,y):          #尝试用递归验证迷宫是否可行...但是不知道怎么能保持同时试探四个方向
+    if maze[x][y]=="8":
+        print("迷宫可行")
+        return maze,x,y 
+    else: 
+        #maze[x][y]=3
+        for i in range(100):
+            if valid(maze,x-1,y):
+                try_maze(maze,x-1,y)
+            if valid(maze,x,y-1):
+                try_maze(maze,x,y-1)
+            if valid(maze,x+1,y):
+                try_maze(maze,x+1,y)
+            if valid(maze,x,y+1):
+                try_maze(maze,x,y+1)
+        print("迷宫不可行")
+        return maze,x,y
+        #try_maze(maze,x,y)
+
 build=maze_build()
 maze,entrance,exit=build
+x=entrance[0]
+y=entrance[1]
+tryresult=try_maze(maze,x,y)
+maze,x,y=tryresult
 for i in range(10):   #测试一下输出迷宫阵列
     print(maze[i])
     i+=1
-x=entrance[0]
-y=entrance[1]
-for x in range(0,10):
-    for y in range(0,10):    #尝试验证迷宫是否可行...
-        maze[x][y]=3
-        if try_walk(maze,x-1,y) or try_walk(maze,x,y-1) or try_walk(maze,x+1,y) or try_walk(maze,x,y+1):
-             break
+while (maze[x][y]!="8"):
+        maze[x][y]="3"   #做标记防止折回
+        m=input("请输入移动方位：")
+        if (m=="W"):
+            x=x-1
+        if (m=="A"):
+            y=y-1
+        if (m=="S"):
+            x=x+1
+        if (m=="D"):
+            y=y+1
+        if (maze[x][y]=="8"):
+            break
+        f=valid(maze,x,y)
+        if f:
+            maze[x][y]="5"   #移动至新的位置
         else:
-            build=maze_build()
-        break
-   
-walk(maze,x,y)
+            print("遇到障碍物")   #很抱歉只会傻傻撤回...
+            if (m=="W"):
+                x=x-1
+            if (m=="A"):
+                y=y+1
+            if (m=="S"):
+                x=x+1
+            if (m=="D"):
+                y=y-1
+        for i in range(10):
+            print(maze[i])
+            i+=1
+#walk(maze,x,y)
