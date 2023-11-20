@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 import cv2
@@ -18,17 +17,15 @@ class subscriber(Node):    #创建类
         self.timer = self.create_timer(timer_period, self.timer_callback)   #(时间周期，调用函数）每秒调用一次time_callback函数
  
     def callback(self,data):
-        global bridge
         # ros2消息类型(imgmsg)转换为np.array
         cv_img = bridge.imgmsg_to_cv2(data, "bgr8") 
-       
-        cv2.imshow("" , cv_img) # 显示接受到的图像数据
+        # 显示接受到的图像数据
+        cv2.imshow("" , cv_img) 
         cv2.waitKey()
  
  
 def main(args=None):
     rclpy.init()
     subnode =subscriber(name='subscribe_node', topic='image_data') # 实例化创建一个节点,定义其中的消息类型为Image。利用callback函数持续接收
-    
     rclpy.spin(subnode)
     rclpy.shutdown()

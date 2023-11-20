@@ -35,10 +35,8 @@ def main(args=None):
     bridge = CvBridge() # 转换为ros2的消息类型(imgmsg)的工具
  
     while True:       
-        # 以下三行为图像的消息转换，frame --> np.array --> imgmsg(可直接ros2发布)
         ret, frame = image.read()        
         frame = np.array(cv2.flip(frame,1))   # 镜像操作,且转为numpy.array   
         # 转换为ros2消息类型，且解码方式为b(blue)、g(green)、r(red)        
         data = bridge.cv2_to_imgmsg(frame,encoding="bgr8") 
- 
-        node.publish(data) # 发布 转换好的 图像类型消息
+        node.publish(data) # 发布转换好的图像类型消息

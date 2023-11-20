@@ -21,13 +21,14 @@ class publisher(Node):    #创建类
     # 定时发布
     def timer_callback(self):
         msg = Image()
-        msg.data = 'The talker is publishing ...'
+        msg.data = 'The publisher is publishing ...'
         self.publisher.publish(msg)  # 发布消息msg
  
 def main(args=None):
     height = 480
     width =  640
-    image =cv2.imread(r"D:\2.jpg")      #加载图像
+    #加载图像
+    image =cv2.imread(r"D:\2.jpg")   
     cv2.imshow("image",image)
     #opencv的图像大小与ros发布的图像大小一致
     image.set(cv2.CAP_PROP_FRAME_WIDTH, width)    
@@ -43,21 +44,11 @@ def main(args=None):
     bridge = CvBridge() # 转换为ros2的消息类型(imgmsg)的工具
  
     while True:       
-        # 以下三行为图像的消息转换，frame --> np.array --> imgmsg(可直接ros2发布)
+        # 以下三行为图像的消息转换，frame-np.array-imgmsg(可直接ros2发布)
         ret, frame = image.read()        
-         # 镜像操作,且转为numpy.array 
+        # 镜像操作,且转为numpy.array 
         frame = np.array(cv2.flip(frame,1))      
         # 转换为ros2消息类型，且解码方式为b(blue)、g(green)、r(red)        
         data = bridge.cv2_to_imgmsg(frame,encoding="bgr8") 
-        pubnode.publish(data) # 发布 转换好的 图像类型消息
-
-#def main():
-    # 初始化rclpy
-    rclpy.init()
-    # 实例化发布节点
-    node = TALKER(name='talker_node', topic='topic')
-    # 循环,保持节点运行
-    rclpy.spin(node)
-    # 关闭
-    node.destroy_node()
-    rclpy.shutdown()
+        # 发布转换好的图像类型消息
+        pubnode.publish(data) 
